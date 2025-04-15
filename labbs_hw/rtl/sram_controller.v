@@ -1,0 +1,167 @@
+module sram_controller (
+    input           clk,
+    input           rst,
+    
+    input           tx_mode,
+    input  [15:0]   rd_addr,
+
+    input           wr_valid,
+    output reg      wr_ready,
+    input  [17:0]   wr_addr,
+    input  [31:0]   wr_data,
+
+    inout  [31:0]   SRAM_DATA,
+    output [17:0]   SRAM_ADDR,
+    output          SRAM_CE_N,
+    output          SRAM_CE2_N,
+    output          SRAM_OE_N,
+    output          SRAM_SW_A_N,
+    output          SRAM_SW_B_N,
+    output          SRAM_SW_C_N,
+    output          SRAM_SW_D_N,
+    output          SRAM_WE_N
+);
+
+    localparam S_IDLE = 0;
+    localparam S_READ = 1;
+    localparam S_WR_AS = 2;
+    localparam S_WR_CE = 3;
+    localparam S_WR_DS = 4;
+    localparam S_WR_DH = 5;
+
+    reg [2:0] state;
+
+    reg [31:0]   sram_data_o;
+    reg          sram_data_t;
+    reg [17:0]   sram_addr;
+    reg          sram_ce_n;
+    reg          sram_oe_n;
+    reg          sram_we_n;
+
+    // *Write Timing*
+    //          _____ ___________ _____
+    //   Addr   _____X_____VA____X_____
+    //          _____         ______
+    //   /CE         \_______/
+    //           ___________________
+    //   /OE    X___________________
+    //          _________     ______
+    //   /WE             \___/
+    //          _________ _______ __
+    //   DIN    _________X___VD__X__
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            state <= 0;
+        end else begin
+            case (state)
+                S_IDLE: begin
+                    if (tx_mode)
+                        state <= S_READ;
+                    else if (wr_valid)
+                        state <= S_WR_AS;
+                end
+                S_READ: begin
+                    if (!tx_mode)
+                        state <= S_IDLE;
+                end
+                S_WR_AS: begin
+                    state <= S_WR_CE;
+                end
+                S_WR_CE: begin
+                    state <= S_WR_DS;
+                end
+                S_WR_DS: begin
+                    state <= S_WR_DH;
+                end
+                S_WR_DH: begin
+                    state <= S_IDLE;
+                end
+                default:
+                    state <= S_IDLE;
+            endcase
+        end
+    end
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            sram_addr <= 'bz;
+            sram_data_t <= 1;
+            sram_data_o <= 'bx;
+        end else begin
+            if (state == S_IDLE && tx_mode || state == S_READ) begin
+                sram_addr <= rd_addr;
+                sram_data_t <= 1;
+                sram_data_o <= 'bx;
+            end else if (state == S_IDLE && wr_valid) begin
+                sram_addr <= wr_addr;
+                sram_data_t <= 0;
+                sram_data_o <= wr_data;
+            end else if (state == S_IDLE) begin
+                sram_addr <= 'bz;
+                sram_data_t <= 1;
+                sram_data_o <= 'bx;
+            end
+        end
+    end
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            sram_ce_n <= 1;
+            sram_oe_n <= 1;
+            sram_we_n <= 1;
+        end else begin
+            case (state)
+                S_IDLE: begin
+                    if (tx_mode) begin
+                        sram_ce_n <= 0;
+                        sram_oe_n <= 0;
+                        sram_we_n <= 1;
+                    end else begin
+                        sram_ce_n <= 1;
+                        sram_oe_n <= 1;
+                        sram_we_n <= 1;
+                    end
+                end
+                S_READ: begin
+                    if (!tx_mode) begin
+                        sram_ce_n <= 1;
+                        sram_oe_n <= 1;
+                        sram_we_n <= 1;
+                    end
+                end
+                S_WR_AS: begin
+                    sram_ce_n <= 0;
+                end
+                S_WR_CE: begin
+                    sram_we_n <= 0;
+                end
+                S_WR_DS: begin
+                    sram_ce_n <= 1;
+                    sram_we_n <= 1;
+                end
+                // S_WR_DH: begin
+                //     sram_ce_n <= 1;
+                //     sram_we_n <= 1;
+                // end
+                // default: ;
+            endcase
+        end
+    end
+
+    always @(*) begin
+        wr_ready = state == S_WR_DH;
+    end
+
+    assign SRAM_DATA = sram_data_t ? 32'bz : sram_data_o;
+    assign SRAM_ADDR = sram_addr;
+    assign SRAM_CE_N = sram_ce_n;
+    assign SRAM_CE2_N = 0;
+    assign SRAM_OE_N = sram_oe_n;
+    assign SRAM_SW_A_N = 0;
+    assign SRAM_SW_B_N = 0;
+    assign SRAM_SW_C_N = 0;
+    assign SRAM_SW_D_N = 0;
+    assign SRAM_WE_N = sram_we_n;
+
+endmodule

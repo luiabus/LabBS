@@ -1,0 +1,18 @@
+# .metadata/
+# RemoteSystemsTempFiles/
+
+# .analytics
+# *.log
+
+/*
+!/.gitignore
+
+!/otherfiles
+!/labbs_app
+/labbs_app/*
+!/labbs_app/src
+
+!/labbs_hw
+/labbs_hw/vivado/*
+!/labbs_hw/vivado/labbs.xpr
+!/labbs_hw/vivado/labbs.srcs

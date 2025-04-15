@@ -1,0 +1,130 @@
+{
+  "schema": "xilinx.com:schema:json_instance:1.0",
+  "ip_inst": {
+    "xci_name": "top_debug_bridge_0_0",
+    "cell_name": "debug_bridge_0",
+    "component_reference": "xilinx.com:ip:debug_bridge:3.0",
+    "ip_revision": "11",
+    "gen_directory": "../../../../../../xabs.gen/sources_1/bd/top/ip/top_debug_bridge_0_0",
+    "parameters": {
+      "component_parameters": {
+        "C_DEBUG_MODE": [ { "value": "7", "value_src": "user", "resolve_type": "user", "usage": "all" } ],
+        "C_NUM_BS_MASTER": [ { "value": "1", "value_src": "user", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_BSCAN_MUX": [ { "value": "1", "resolve_type": "user", "usage": "all" } ],
+        "C_EN_BSCANID_VEC": [ { "value": "false", "resolve_type": "user", "usage": "all" } ],
+        "C_USE_EXT_BSCAN": [ { "value": "true", "resolve_type": "user", "format": "bool", "usage": "all" } ],
+        "C_USE_STARTUP_CLK": [ { "value": "false", "resolve_type": "user", "format": "bool", "usage": "all" } ],
+        "C_ENABLE_CLK_DIVIDER": [ { "value": "false", "resolve_type": "user", "format": "bool", "usage": "all" } ],
+        "C_TWO_PRIM_MODE": [ { "value": "false", "resolve_type": "user", "format": "bool", "usage": "all" } ],
+        "C_USER_SCAN_CHAIN": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_CORE_TYPE": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_EN_INT_SIM": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_DCLK_HAS_RESET": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_USE_BUFR": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_XSDB_NUM_SLAVES": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_CORE_MINOR_ALPHA_VER": [ { "value": "97", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_CORE_MINOR_VER": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_CORE_MAJOR_VER": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_BUILD_REVISION": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_MINOR_VERSION": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_MAJOR_VERSION": [ { "value": "14", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_FIFO_STYLE": [ { "value": "SUBCORE", "resolve_type": "user", "usage": "all" } ],
+        "C_DESIGN_TYPE": [ { "value": "0", "resolve_type": "user", "usage": "all" } ],
+        "C_MASTER_INTF_TYPE": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_EN_PASSTHROUGH": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_XVC_HW_ID": [ { "value": "0x0001", "resolve_type": "user", "format": "bitString", "usage": "all" } ],
+        "C_XVC_SW_ID": [ { "value": "0x0001", "resolve_type": "user", "format": "bitString", "usage": "all" } ],
+        "C_PCIE_EXT_CFG_BASE_ADDR": [ { "value": "0x400", "resolve_type": "user", "format": "bitString", "usage": "all" } ],
+        "C_PCIE_EXT_CFG_VSEC_REV_ID": [ { "value": "0x0", "resolve_type": "user", "format": "bitString", "usage": "all" } ],
+        "C_PCIE_EXT_CFG_VSEC_LENGTH": [ { "value": "0x020", "resolve_type": "user", "format": "bitString", "enabled": false, "usage": "all" } ],
+        "C_PCIE_EXT_CFG_NEXT_PTR": [ { "value": "0x000", "resolve_type": "user", "format": "bitString", "usage": "all" } ],
+        "C_PCIE_EXT_CFG_VSEC_ID": [ { "value": "0x0008", "resolve_type": "user", "format": "bitString", "usage": "all" } ],
+        "Component_Name": [ { "value": "top_debug_bridge_0_0", "resolve_type": "user", "usage": "all" } ],
+        "C_CLK_INPUT_FREQ_HZ": [ { "value": "300000000", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_S_AXI_DATA_WIDTH": [ { "value": "32", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_S_AXI_ADDR_WIDTH": [ { "value": "5", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_TCK_CLOCK_RATIO": [ { "value": "8", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_USE_SOFTBSCAN": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_DEVICE_FAMILY": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_IR_WIDTH": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_CHIP_ID": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_IR_ID_INSTR": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "C_IR_USER1_INSTR": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ]
+      },
+      "project_parameters": {
+        "ARCHITECTURE": [ { "value": "zynq" } ],
+        "BASE_BOARD_PART": [ { "value": "" } ],
+        "BOARD_CONNECTIONS": [ { "value": "" } ],
+        "DEVICE": [ { "value": "xc7z020" } ],
+        "PACKAGE": [ { "value": "clg400" } ],
+        "PREFHDL": [ { "value": "VERILOG" } ],
+        "SILICON_REVISION": [ { "value": "" } ],
+        "SIMULATOR_LANGUAGE": [ { "value": "MIXED" } ],
+        "SPEEDGRADE": [ { "value": "-2" } ],
+        "STATIC_POWER": [ { "value": "" } ],
+        "TEMPERATURE_GRADE": [ { "value": "" } ],
+        "USE_RDI_CUSTOMIZATION": [ { "value": "TRUE" } ],
+        "USE_RDI_GENERATION": [ { "value": "TRUE" } ]
+      },
+      "runtime_parameters": {
+        "IPCONTEXT": [ { "value": "IP_Integrator" } ],
+        "IPREVISION": [ { "value": "11" } ],
+        "MANAGED": [ { "value": "TRUE" } ],
+        "OUTPUTDIR": [ { "value": "../../../../../../xabs.gen/sources_1/bd/top/ip/top_debug_bridge_0_0" } ],
+        "SELECTEDSIMMODEL": [ { "value": "" } ],
+        "SHAREDDIR": [ { "value": "../../ipshared" } ],
+        "SWVERSION": [ { "value": "2023.2.2" } ],
+        "SYNTHESISFLOW": [ { "value": "OOC_HIERARCHICAL" } ]
+      }
+    },
+    "boundary": {
+      "ports": {
+        "m0_bscan_bscanid_en": [ { "direction": "out" } ],
+        "m0_bscan_capture": [ { "direction": "out" } ],
+        "m0_bscan_drck": [ { "direction": "out" } ],
+        "m0_bscan_reset": [ { "direction": "out" } ],
+        "m0_bscan_runtest": [ { "direction": "out" } ],
+        "m0_bscan_sel": [ { "direction": "out" } ],
+        "m0_bscan_shift": [ { "direction": "out" } ],
+        "m0_bscan_tck": [ { "direction": "out" } ],
+        "m0_bscan_tdi": [ { "direction": "out" } ],
+        "m0_bscan_tdo": [ { "direction": "in", "driver_value": "0" } ],
+        "m0_bscan_tms": [ { "direction": "out" } ],
+        "m0_bscan_update": [ { "direction": "out" } ]
+      },
+      "interfaces": {
+        "m0_bscan": {
+          "vlnv": "xilinx.com:interface:bscan:1.0",
+          "abstraction_type": "xilinx.com:interface:bscan_rtl:1.0",
+          "mode": "master",
+          "port_maps": {
+            "BSCANID_EN": [ { "physical_name": "m0_bscan_bscanid_en" } ],
+            "CAPTURE": [ { "physical_name": "m0_bscan_capture" } ],
+            "DRCK": [ { "physical_name": "m0_bscan_drck" } ],
+            "RESET": [ { "physical_name": "m0_bscan_reset" } ],
+            "RUNTEST": [ { "physical_name": "m0_bscan_runtest" } ],
+            "SEL": [ { "physical_name": "m0_bscan_sel" } ],
+            "SHIFT": [ { "physical_name": "m0_bscan_shift" } ],
+            "TCK": [ { "physical_name": "m0_bscan_tck" } ],
+            "TDI": [ { "physical_name": "m0_bscan_tdi" } ],
+            "TDO": [ { "physical_name": "m0_bscan_tdo" } ],
+            "TMS": [ { "physical_name": "m0_bscan_tms" } ],
+            "UPDATE": [ { "physical_name": "m0_bscan_update" } ]
+          }
+        }
+      },
+      "memory_maps": {
+        "s_axi_mm": {
+          "address_blocks": {
+            "REG": {
+              "base_address": "0",
+              "range": "4096",
+              "usage": "register",
+              "access": "read-write"
+            }
+          }
+        }
+      }
+    }
+  }
+}
