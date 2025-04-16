@@ -1,4 +1,6 @@
 # ad9361_0
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets top_i/xabs_top_0/inst/i_ad9361/i_dev_if_0/i_clk/clk_ibuf_s]
+
 set_property  -dict {PACKAGE_PIN  N18  IOSTANDARD LVDS_25 DIFF_TERM TRUE} [get_ports rx_data_in_0_p[4] ]    ; ## U1,K17,IO_L12_MRCC_35_DATA_CLK_P
 set_property  -dict {PACKAGE_PIN  P19  IOSTANDARD LVDS_25 DIFF_TERM TRUE} [get_ports rx_data_in_0_n[4] ]    ; ## U1,K18,IO_L12_MRCC_35_DATA_CLK_N
 set_property  -dict {PACKAGE_PIN  W14  IOSTANDARD LVDS_25 DIFF_TERM TRUE} [get_ports rx_data_in_0_p[0] ]    ; ## U1,M19,IO_L07_35_RX_FRAME_P
@@ -151,3 +153,5 @@ set_false_path -to [get_pins -of [get_cells -hier -filter {name =~ top_i/xabs_to
 
 set_max_delay -from [get_pins -of [get_cells -hier -filter {name =~ top_i/xabs_top_0/inst/dbg_dac_valid_ctr_reg*}] -filter {name =~ *C} ] \
     5.00 -datapath_only -quiet
+
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets top_i/xabs_top_0/inst/i_ad9361/i_dev_if_0/i_clk/i_rx_clk_ibuf]
