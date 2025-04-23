@@ -4,7 +4,7 @@
     "xci_name": "top_xabs_top_0_0",
     "cell_name": "xabs_top_0",
     "component_reference": "xilinx.com:module_ref:xabs_top:1.0",
-    "ip_revision": "1742784654",
+    "ip_revision": "1745386104",
     "gen_directory": "../../../../../../xabs.gen/sources_1/bd/top/ip/top_xabs_top_0_0",
     "parameters": {
       "component_parameters": {
@@ -37,7 +37,7 @@
       },
       "runtime_parameters": {
         "IPCONTEXT": [ { "value": "IP_Integrator" } ],
-        "IPREVISION": [ { "value": "1742784654" } ],
+        "IPREVISION": [ { "value": "1745386104" } ],
         "MANAGED": [ { "value": "TRUE" } ],
         "OUTPUTDIR": [ { "value": "../../../../../../xabs.gen/sources_1/bd/top/ip/top_xabs_top_0_0" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],

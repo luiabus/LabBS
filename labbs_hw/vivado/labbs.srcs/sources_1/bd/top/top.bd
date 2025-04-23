@@ -24,9 +24,8 @@
       "ila_0": "",
       "vio_0": "",
       "ila_1": "",
-      "debug_bridge_0": "",
-      "debug_bridge_1": "",
-      "xabs_top_0": ""
+      "xabs_top_0": "",
+      "ila_2": ""
     },
     "interface_ports": {
       "DDR_0": {
@@ -1003,7 +1002,7 @@
             "value": "enabled"
           },
           "PCW_MIO_16_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_17_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1012,7 +1011,7 @@
             "value": "enabled"
           },
           "PCW_MIO_17_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_18_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1021,7 +1020,7 @@
             "value": "enabled"
           },
           "PCW_MIO_18_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_19_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1030,7 +1029,7 @@
             "value": "enabled"
           },
           "PCW_MIO_19_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_1_IOTYPE": {
             "value": "LVCMOS 3.3V"
@@ -1048,7 +1047,7 @@
             "value": "enabled"
           },
           "PCW_MIO_20_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_21_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1057,7 +1056,7 @@
             "value": "enabled"
           },
           "PCW_MIO_21_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_22_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1066,7 +1065,7 @@
             "value": "enabled"
           },
           "PCW_MIO_22_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_23_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1075,7 +1074,7 @@
             "value": "enabled"
           },
           "PCW_MIO_23_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_24_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1084,7 +1083,7 @@
             "value": "enabled"
           },
           "PCW_MIO_24_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_25_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1093,7 +1092,7 @@
             "value": "enabled"
           },
           "PCW_MIO_25_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_26_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1102,7 +1101,7 @@
             "value": "enabled"
           },
           "PCW_MIO_26_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_27_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1111,7 +1110,7 @@
             "value": "enabled"
           },
           "PCW_MIO_27_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_28_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1135,7 +1134,7 @@
             "value": "LVCMOS 3.3V"
           },
           "PCW_MIO_2_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_30_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1231,7 +1230,7 @@
             "value": "LVCMOS 3.3V"
           },
           "PCW_MIO_3_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_40_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1327,7 +1326,7 @@
             "value": "LVCMOS 3.3V"
           },
           "PCW_MIO_4_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_50_IOTYPE": {
             "value": "LVCMOS 1.8V"
@@ -1369,13 +1368,13 @@
             "value": "LVCMOS 3.3V"
           },
           "PCW_MIO_5_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_6_IOTYPE": {
             "value": "LVCMOS 3.3V"
           },
           "PCW_MIO_6_SLEW": {
-            "value": "slow"
+            "value": "fast"
           },
           "PCW_MIO_7_IOTYPE": {
             "value": "LVCMOS 3.3V"
@@ -1721,6 +1720,18 @@
           },
           "PCW_SPI_PERIPHERAL_VALID": {
             "value": "1"
+          },
+          "PCW_S_AXI_HP0_DATA_WIDTH": {
+            "value": "64"
+          },
+          "PCW_S_AXI_HP1_DATA_WIDTH": {
+            "value": "64"
+          },
+          "PCW_S_AXI_HP2_DATA_WIDTH": {
+            "value": "64"
+          },
+          "PCW_S_AXI_HP3_DATA_WIDTH": {
+            "value": "64"
           },
           "PCW_TPIU_PERIPHERAL_CLKSRC": {
             "value": "External"
@@ -2668,45 +2679,9 @@
           }
         }
       },
-      "debug_bridge_0": {
-        "vlnv": "xilinx.com:ip:debug_bridge:3.0",
-        "ip_revision": "11",
-        "xci_name": "top_debug_bridge_0_0",
-        "xci_path": "ip\\top_debug_bridge_0_0\\top_debug_bridge_0_0.xci",
-        "inst_hier_path": "debug_bridge_0",
-        "parameters": {
-          "C_DEBUG_MODE": {
-            "value": "7"
-          },
-          "C_NUM_BS_MASTER": {
-            "value": "1"
-          }
-        },
-        "interface_ports": {
-          "m0_bscan": {
-            "mode": "Master",
-            "vlnv_bus_definition": "xilinx.com:interface:bscan:1.0",
-            "vlnv": "xilinx.com:interface:bscan_rtl:1.0"
-          }
-        }
-      },
-      "debug_bridge_1": {
-        "vlnv": "xilinx.com:ip:debug_bridge:3.0",
-        "ip_revision": "11",
-        "xci_name": "top_debug_bridge_1_0",
-        "xci_path": "ip\\top_debug_bridge_1_0\\top_debug_bridge_1_0.xci",
-        "inst_hier_path": "debug_bridge_1",
-        "interface_ports": {
-          "S_BSCAN": {
-            "mode": "Slave",
-            "vlnv_bus_definition": "xilinx.com:interface:bscan:1.0",
-            "vlnv": "xilinx.com:interface:bscan_rtl:1.0"
-          }
-        }
-      },
       "xabs_top_0": {
         "vlnv": "xilinx.com:module_ref:xabs_top:1.0",
-        "ip_revision": "1742784654",
+        "ip_revision": "1745386104",
         "xci_name": "top_xabs_top_0_0",
         "xci_path": "ip\\top_xabs_top_0_0\\top_xabs_top_0_0.xci",
         "inst_hier_path": "xabs_top_0",
@@ -3079,6 +3054,21 @@
             "right": "0"
           }
         }
+      },
+      "ila_2": {
+        "vlnv": "xilinx.com:ip:ila:6.2",
+        "ip_revision": "14",
+        "xci_name": "top_ila_2_0",
+        "xci_path": "ip\\top_ila_2_0_1\\top_ila_2_0.xci",
+        "inst_hier_path": "ila_2",
+        "parameters": {
+          "C_DATA_DEPTH": {
+            "value": "1024"
+          },
+          "C_MONITOR_TYPE": {
+            "value": "Native"
+          }
+        }
       }
     },
     "interface_nets": {
@@ -3092,12 +3082,6 @@
         "interface_ports": [
           "axi_interconnect_0/M00_AXI",
           "xabs_top_0/S_AXI"
-        ]
-      },
-      "debug_bridge_0_m0_bscan": {
-        "interface_ports": [
-          "debug_bridge_0/m0_bscan",
-          "debug_bridge_1/S_BSCAN"
         ]
       },
       "processing_system7_0_DDR": {
@@ -3195,7 +3179,8 @@
       "gpio_clksel_0_0_1": {
         "ports": [
           "gpio_clksel_0",
-          "ad9361_misc_io_0/gpio_clksel_0"
+          "ad9361_misc_io_0/gpio_clksel_0",
+          "ila_2/probe0"
         ]
       },
       "gpio_clksel_1_0_1": {
@@ -3244,7 +3229,6 @@
       "processing_system7_0_FCLK_CLK1": {
         "ports": [
           "processing_system7_0/FCLK_CLK1",
-          "debug_bridge_1/clk",
           "ila_0/clk"
         ]
       },
@@ -3386,7 +3370,8 @@
         "ports": [
           "xabs_top_0/dbg_rf_clk",
           "ila_1/clk",
-          "vio_0/clk"
+          "vio_0/clk",
+          "ila_2/clk"
         ]
       },
       "xabs_top_0_pps_out": {
