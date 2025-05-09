@@ -1,4 +1,6 @@
-module pcode_rom (
+module pcode_rom #(
+    parameter integer PCODE_LEN = 40920
+) (
     input           clk,
     input           rst,
 
@@ -13,7 +15,7 @@ module pcode_rom (
     output reg      pcode_7
 );
 
-    reg [7:0] memory[0:20460-1];
+    reg [7:0] memory[0:PCODE_LEN-1];
 
     initial begin
         $readmemh("D:/CodingHotCache/LabBS/labbs_hw/local/pcode.txt", memory);
