@@ -7,7 +7,7 @@
       "name": "top",
       "rev_ctrl_bd_flag": "RevCtrlBdOff",
       "synth_flow_mode": "Hierarchical",
-      "tool_version": "2023.2.2",
+      "tool_version": "2023.2",
       "validated": "true"
     },
     "design_tree": {
@@ -1721,18 +1721,6 @@
           "PCW_SPI_PERIPHERAL_VALID": {
             "value": "1"
           },
-          "PCW_S_AXI_HP0_DATA_WIDTH": {
-            "value": "64"
-          },
-          "PCW_S_AXI_HP1_DATA_WIDTH": {
-            "value": "64"
-          },
-          "PCW_S_AXI_HP2_DATA_WIDTH": {
-            "value": "64"
-          },
-          "PCW_S_AXI_HP3_DATA_WIDTH": {
-            "value": "64"
-          },
           "PCW_TPIU_PERIPHERAL_CLKSRC": {
             "value": "External"
           },
@@ -2394,7 +2382,7 @@
             "components": {
               "auto_pc": {
                 "vlnv": "xilinx.com:ip:axi_protocol_converter:2.1",
-                "ip_revision": "30",
+                "ip_revision": "29",
                 "xci_name": "top_auto_pc_0",
                 "xci_path": "ip\\top_auto_pc_0\\top_auto_pc_0.xci",
                 "inst_hier_path": "axi_interconnect_0/s00_couplers/auto_pc",
@@ -2688,6 +2676,9 @@
         "parameters": {
           "MESSAGE_LEN": {
             "value": "100"
+          },
+          "PCODE_LEN": {
+            "value": "20460"
           }
         },
         "reference_info": {
@@ -3210,20 +3201,20 @@
       "proc_sys_reset_0_peripheral_aresetn": {
         "ports": [
           "proc_sys_reset_0/peripheral_aresetn",
+          "xabs_top_0/S_AXI_ARESETN",
           "axi_interconnect_0/S00_ARESETN",
-          "axi_interconnect_0/M00_ARESETN",
-          "xabs_top_0/S_AXI_ARESETN"
+          "axi_interconnect_0/M00_ARESETN"
         ]
       },
       "processing_system7_0_FCLK_CLK0": {
         "ports": [
           "processing_system7_0/FCLK_CLK0",
           "processing_system7_0/M_AXI_GP0_ACLK",
+          "proc_sys_reset_0/slowest_sync_clk",
+          "xabs_top_0/S_AXI_ACLK",
           "axi_interconnect_0/ACLK",
           "axi_interconnect_0/S00_ACLK",
-          "axi_interconnect_0/M00_ACLK",
-          "proc_sys_reset_0/slowest_sync_clk",
-          "xabs_top_0/S_AXI_ACLK"
+          "axi_interconnect_0/M00_ACLK"
         ]
       },
       "processing_system7_0_FCLK_CLK1": {

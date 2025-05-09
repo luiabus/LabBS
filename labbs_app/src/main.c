@@ -23,14 +23,14 @@ int bs_init()
         memset(msg_buffer, 0, sizeof(msg_buffer));
 
         // 配置同步头（其实是同步尾）
-        // if (channel == 0)
-        // {
-        // msg_buffer[8] = 0xf0;
-        // msg_buffer[9] = 0x0f;
-        // msg_buffer[10] = 0xf0;
-        // msg_buffer[11] = 0x5f;
-        // msg_buffer[12] = 0x05;
-        // }
+         if (channel == 0)
+         {
+         msg_buffer[8] = 0xf0;
+         msg_buffer[9] = 0x0f;
+         msg_buffer[10] = 0xf0;
+         msg_buffer[11] = 0x5f;
+         msg_buffer[12] = 0x05;
+         }
         bs_enable_channel(bs_ptr, channel);
         bs_set_channel_message(bs_ptr, channel, msg_buffer, sizeof(msg_buffer));
         //    	}

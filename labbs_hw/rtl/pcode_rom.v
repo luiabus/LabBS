@@ -13,10 +13,10 @@ module pcode_rom (
     output reg      pcode_7
 );
 
-    reg [7:0] memory[0:40960-1];
+    reg [7:0] memory[0:20460-1];
 
     initial begin
-        $readmemh("pcode.txt", memory);
+        $readmemh("D:/CodingHotCache/LabBS/labbs_hw/local/pcode.txt", memory);
     end
 
     always @(posedge clk) begin
