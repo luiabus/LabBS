@@ -50,7 +50,7 @@
 typedef u8 EepromBuffer[100];
 
 /***************** Macros (Inline Functions) Definitions *********************/
-/*********************9361澶嶄綅淇″彿****************************/
+/*********************9361复位信号****************************/
 static void ad9361_rest();
 static void FMC_rest(int AD);
 
@@ -111,9 +111,9 @@ EepromBuffer WriteBuffer;
 // XGpio ad;
 int ad9361_init(void)
 {
-	int Status; // 妫�娴嬪悇鍑芥暟鐨勮皟鐢ㄧ粨鏋�
+	int Status; // �?测各函数的调用结�?
 
-	/*==========================閰嶇疆AD9361=================================*/
+	/*==========================配置AD9361=================================*/
 	xil_printf("SPI AD9361 Interrupt Configuration Start\r\n");
 
 	/*
@@ -128,8 +128,93 @@ int ad9361_init(void)
 		return XST_FAILURE;
 	}
 
-	/*=========================杈撳嚭AD9361閰嶇疆瀹屾垚淇″彿=============================*/
+	/*=========================输出AD9361配置完成信号=============================*/
 	xil_printf("Successfully AD9361  Configuration\r\n");
+	return XST_SUCCESS;
+}
+
+int ad9361_setatt(char command, char channel, char attenuation)
+{
+	static XGpioPs psGpioInstancePtr; // 这是�?个指针实例，指向添加�? GPIO 端口
+	XGpioPs_Config *GpioConfigPtr;	  // 此结构体存放的是 GPIO 的设备地�?和基地址
+	int ad0 = 57;					  // EMIO的第3�?
+	int ad1 = 58;					  // EMIO的第4�?
+	u32 uPinDirection = 1;			  // 1表示输出
+	int xStatus;
+
+	GpioConfigPtr = XGpioPs_LookupConfig(XPAR_PS7_GPIO_0_DEVICE_ID);
+	if (GpioConfigPtr == NULL)
+		return XST_FAILURE;
+
+	xStatus = XGpioPs_CfgInitialize(&psGpioInstancePtr, GpioConfigPtr, GpioConfigPtr->BaseAddr);
+	if (XST_SUCCESS != xStatus)
+		printf(" PS GPIO INIT FAILED \n\r");
+
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad0, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad0, 1);
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad1, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad1, 1);
+	XGpioPs_WritePin(&psGpioInstancePtr, ad0, 1);
+	XGpioPs_WritePin(&psGpioInstancePtr, ad1, 1);
+
+	int Status;
+
+	XSpiPs_Config *SpiConfig;
+	RegConfig SetRefTemp[1];
+
+	/*
+	 * Initialize the SPI driver so that it's ready to use
+	 */
+	SpiConfig = XSpiPs_LookupConfig(SPI_DEVICE_ID);
+	if (NULL == SpiConfig)
+	{
+		return XST_FAILURE;
+	}
+
+	if (channel == 1 || channel == 3)
+	{
+		SetRefTemp[0] = (RegConfig){(u16)command, 0x073, attenuation};
+	}
+	else if (channel == 2 || channel == 4)
+	{
+		SetRefTemp[0] = (RegConfig){(u16)command, 0x073, attenuation};
+	}
+	else
+	{
+		return XST_FAILURE;
+	}
+
+	if (channel == 1 || channel == 2)
+	{
+		XGpioPs_WritePin(&psGpioInstancePtr, ad0, 0);
+		do
+		{
+			Status = Ad9361RegConfig(&SpiInstance, SetRefTemp, 1, 0);
+		} while (Status != XST_SUCCESS);
+		if (Status != XST_SUCCESS)
+		{
+			return XST_FAILURE;
+		}
+		XGpioPs_WritePin(&psGpioInstancePtr, ad0, 1);
+	}
+	else if (channel == 3 || channel == 4)
+	{
+		XGpioPs_WritePin(&psGpioInstancePtr, ad1, 0);
+		do
+		{
+			Status = Ad9361RegConfig(&SpiInstance, SetRefTemp, 1, 1);
+		} while (Status != XST_SUCCESS);
+		if (Status != XST_SUCCESS)
+		{
+			return XST_FAILURE;
+		}
+		XGpioPs_WritePin(&psGpioInstancePtr, ad1, 1);
+	}
+	else
+	{
+		return XST_FAILURE;
+	}
+
 	return XST_SUCCESS;
 }
 
@@ -141,16 +226,16 @@ static RegConfig ad9361_ensm_enable[1] = {
 int SpiPsAd9361Initialize(XScuGic *IntcInstancePtr, XSpiPs *SpiInstancePtr,
 						  u16 SpiDeviceId, u16 SpiIntrId)
 {
-	static XGpioPs psGpioInstancePtr; // 杩欐槸涓�涓寚閽堝疄渚嬶紝鎸囧悜娣诲姞鐨� GPIO 绔彛
-	XGpioPs_Config *GpioConfigPtr;	  // 姝ょ粨鏋勪綋瀛樻斁鐨勬槸 GPIO 鐨勮澶囧湴鍧�鍜屽熀鍦板潃
+	static XGpioPs psGpioInstancePtr; // 这是�?个指针实例，指向添加�? GPIO 端口
+	XGpioPs_Config *GpioConfigPtr;	  // 此结构体存放的是 GPIO 的设备地�?和基地址
 	int sync = 56;
-	int ad0 = 57;		   // EMIO鐨勭3浣�
-	int ad1 = 58;		   // EMIO鐨勭4浣�
-	int ad_finish = 59;	   // EMIO鐨勭5浣�
-	int io_rst = 60;	   // EMIO鐨勭6浣�
-	int tx_ready = 61;	   // EMIO鐨勭7浣�
-	int tx_finish = 62;	   // EMIO鐨勭8浣�
-	u32 uPinDirection = 1; // 1琛ㄧず杈撳嚭
+	int ad0 = 57;		   // EMIO的第3�?
+	int ad1 = 58;		   // EMIO的第4�?
+	int ad_finish = 59;	   // EMIO的第5�?
+	int io_rst = 60;	   // EMIO的第6�?
+	int tx_ready = 61;	   // EMIO的第7�?
+	int tx_finish = 62;	   // EMIO的第8�?
+	u32 uPinDirection = 1; // 1表示输出
 	int xStatus;
 	GpioConfigPtr = XGpioPs_LookupConfig(XPAR_PS7_GPIO_0_DEVICE_ID);
 	if (GpioConfigPtr == NULL)
@@ -159,28 +244,28 @@ int SpiPsAd9361Initialize(XScuGic *IntcInstancePtr, XSpiPs *SpiInstancePtr,
 	if (XST_SUCCESS != xStatus)
 		print(" PS GPIO INIT FAILED \n\r");
 
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad0, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad0, uPinDirection); // 设置EMIO为输�?
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, sync, 1);
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad0, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad0, uPinDirection); // 设置EMIO为输�?
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad0, 1);
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad1, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad1, uPinDirection); // 设置EMIO为输�?
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad1, 1);
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad_finish, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad_finish, uPinDirection); // 设置EMIO为输�?
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad_finish, 1);
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, io_rst, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, io_rst, uPinDirection); // 设置EMIO为输�?
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, io_rst, 1);
 	XGpioPs_WritePin(&psGpioInstancePtr, sync, 0);
 	XGpioPs_WritePin(&psGpioInstancePtr, ad0, 1);
 	XGpioPs_WritePin(&psGpioInstancePtr, ad1, 1);
 	XGpioPs_WritePin(&psGpioInstancePtr, ad_finish, 0);
 	XGpioPs_WritePin(&psGpioInstancePtr, io_rst, 0);
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, tx_ready, 0);			   // 璁剧疆EMIO涓鸿緭鍑�
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, tx_finish, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, tx_ready, 0);			   // 设置EMIO为输�?
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, tx_finish, uPinDirection); // 设置EMIO为输�?
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, tx_finish, 1);
 	XGpioPs_WritePin(&psGpioInstancePtr, tx_finish, 1);
 
 	ad9361_sync();
-	ad9361_rest(); // 澶嶄綅9361鑺墖
+	ad9361_rest(); // 复位9361芯片
 
 	///////////////////
 
@@ -615,7 +700,7 @@ int Ad9361RegConfig(XSpiPs *SpiInstancePtr, RegConfig *RegPtr, u16 RegNum, int F
 		{
 			Ad9361Read(SpiInstancePtr, (RegPtr + i)->Address, 1, ReadBuffer);
 			BufferPtr = &ReadBuffer[READ_DATA_OFFSET];
-			//			xil_printf("Address = 0x%x, value = 0x%x \r\n", (RegPtr + i) -> Address, *BufferPtr);
+			xil_printf("Address = 0x%x, value = 0x%x \r\n", (RegPtr + i)->Address, *BufferPtr);
 		}
 		else if ((RegPtr + i)->WRStatus == 1)
 		{
@@ -663,12 +748,12 @@ int Ad9361RegConfig(XSpiPs *SpiInstancePtr, RegConfig *RegPtr, u16 RegNum, int F
 
 static void ad9361_rest()
 {
-	static XGpioPs psGpioInstancePtr; // 杩欐槸涓�涓寚閽堝疄渚嬶紝鎸囧悜娣诲姞鐨� GPIO 绔彛
-	XGpioPs_Config *GpioConfigPtr;	  // 姝ょ粨鏋勪綋瀛樻斁鐨勬槸 GPIO 鐨勮澶囧湴鍧�鍜屽熀鍦板潃
-	int iPinNumber0 = 54;			  // EMIO鐨勭0浣�
+	static XGpioPs psGpioInstancePtr; // 这是�?个指针实例，指向添加�? GPIO 端口
+	XGpioPs_Config *GpioConfigPtr;	  // 此结构体存放的是 GPIO 的设备地�?和基地址
+	int iPinNumber0 = 54;			  // EMIO的第0�?
 	int iPinNumber1 = 55;
 	int iPinNumber2 = 60;
-	u32 uPinDirection = 1; // 1琛ㄧず杈撳嚭
+	u32 uPinDirection = 1; // 1表示输出
 	int xStatus;
 	GpioConfigPtr = XGpioPs_LookupConfig(XPAR_PS7_GPIO_0_DEVICE_ID);
 	if (GpioConfigPtr == NULL)
@@ -677,23 +762,23 @@ static void ad9361_rest()
 	if (XST_SUCCESS != xStatus)
 		print(" PS GPIO INIT FAILED \n\r");
 
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber0, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
-	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber0, 1);			 // 浣胯兘EMIO杈撳嚭
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber1, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
-	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber1, 1);			 // 浣胯兘EMIO杈撳嚭
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber2, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
-	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber2, 1);			 // 浣胯兘EMIO杈撳嚭
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 1);					 // EMIO鐨勭0浣嶈緭鍑�1
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 1);					 // EMIO鐨勭1浣嶈緭鍑�1
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber2, 0);					 // EMIO鐨勭1浣嶈緭鍑�0
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber0, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber0, 1);			 // 使能EMIO输出
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber1, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber1, 1);			 // 使能EMIO输出
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber2, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber2, 1);			 // 使能EMIO输出
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 1);					 // EMIO的第0位输�?1
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 1);					 // EMIO的第1位输�?1
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber2, 0);					 // EMIO的第1位输�?0
 
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 0); // EMIO鐨勭0浣嶈緭鍑�0
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 0); // EMIO鐨勭1浣嶈緭鍑�0
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber2, 1); // EMIO鐨勭1浣嶈緭鍑�1
-	sleep(0.001);										  // 寤舵椂
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 1); // EMIO鐨勭0浣嶈緭鍑�1
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 1); // EMIO鐨勭1浣嶈緭鍑�1
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber2, 0); // EMIO鐨勭1浣嶈緭鍑�0
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 0); // EMIO的第0位输�?0
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 0); // EMIO的第1位输�?0
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber2, 1); // EMIO的第1位输�?1
+	sleep(0.001);										  // 延时
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 1); // EMIO的第0位输�?1
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 1); // EMIO的第1位输�?1
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber2, 0); // EMIO的第1位输�?0
 
 	xil_printf("AD9361 reset finish!\r\n");
 	return;
@@ -701,11 +786,11 @@ static void ad9361_rest()
 
 static void FMC_rest(int FMC)
 {
-	static XGpioPs psGpioInstancePtr; // 杩欐槸涓�涓寚閽堝疄渚嬶紝鎸囧悜娣诲姞鐨� GPIO 绔彛
-	XGpioPs_Config *GpioConfigPtr;	  // 姝ょ粨鏋勪綋瀛樻斁鐨勬槸 GPIO 鐨勮澶囧湴鍧�鍜屽熀鍦板潃
-	int iPinNumber0 = 54;			  // EMIO鐨勭0浣�
+	static XGpioPs psGpioInstancePtr; // 这是�?个指针实例，指向添加�? GPIO 端口
+	XGpioPs_Config *GpioConfigPtr;	  // 此结构体存放的是 GPIO 的设备地�?和基地址
+	int iPinNumber0 = 54;			  // EMIO的第0�?
 	int iPinNumber1 = 55;
-	u32 uPinDirection = 1; // 1琛ㄧず杈撳嚭
+	u32 uPinDirection = 1; // 1表示输出
 	int xStatus;
 	GpioConfigPtr = XGpioPs_LookupConfig(XPAR_PS7_GPIO_0_DEVICE_ID);
 	if (GpioConfigPtr == NULL)
@@ -714,28 +799,28 @@ static void FMC_rest(int FMC)
 	if (XST_SUCCESS != xStatus)
 		print(" PS GPIO INIT FAILED \n\r");
 
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber0, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
-	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber0, 1);			 // 浣胯兘EMIO杈撳嚭
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber1, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
-	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber1, 1);			 // 浣胯兘EMIO杈撳嚭
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber0, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber0, 1);			 // 使能EMIO输出
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber1, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber1, 1);			 // 使能EMIO输出
 
 	switch (FMC)
 	{
 	case 0:
 	{
-		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 1); // EMIO鐨勭0浣嶈緭鍑�1
-		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 0); // EMIO鐨勭0浣嶈緭鍑�0
-		sleep(0.001);										  // 寤舵椂
-		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 1); // EMIO鐨勭0浣嶈緭鍑�1
+		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 1); // EMIO的第0位输�?1
+		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 0); // EMIO的第0位输�?0
+		sleep(0.001);										  // 延时
+		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber0, 1); // EMIO的第0位输�?1
 		//			xil_printf("FMC0 reset finish!\r\n");
 		break;
 	}
 	case 1:
 	{
-		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 1); // EMIO鐨勭0浣嶈緭鍑�1
-		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 0); // EMIO鐨勭0浣嶈緭鍑�0
-		sleep(0.001);										  // 寤舵椂
-		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 1); // EMIO鐨勭0浣嶈緭鍑�1
+		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 1); // EMIO的第0位输�?1
+		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 0); // EMIO的第0位输�?0
+		sleep(0.001);										  // 延时
+		XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber1, 1); // EMIO的第0位输�?1
 		//			xil_printf("FMC1 reset finish!\r\n");
 		break;
 	}
@@ -745,10 +830,10 @@ static void FMC_rest(int FMC)
 
 static void ad9361_sync()
 {
-	static XGpioPs psGpioInstancePtr; // 杩欐槸涓�涓寚閽堝疄渚嬶紝鎸囧悜娣诲姞鐨� GPIO 绔彛
-	XGpioPs_Config *GpioConfigPtr;	  // 姝ょ粨鏋勪綋瀛樻斁鐨勬槸 GPIO 鐨勮澶囧湴鍧�鍜屽熀鍦板潃
-	int iPinNumber = 56;			  // EMIO鐨勭0浣�
-	u32 uPinDirection = 1;			  // 1琛ㄧず杈撳嚭
+	static XGpioPs psGpioInstancePtr; // 这是�?个指针实例，指向添加�? GPIO 端口
+	XGpioPs_Config *GpioConfigPtr;	  // 此结构体存放的是 GPIO 的设备地�?和基地址
+	int iPinNumber = 56;			  // EMIO的第0�?
+	u32 uPinDirection = 1;			  // 1表示输出
 	int xStatus;
 	GpioConfigPtr = XGpioPs_LookupConfig(XPAR_PS7_GPIO_0_DEVICE_ID);
 	if (GpioConfigPtr == NULL)
@@ -757,13 +842,13 @@ static void ad9361_sync()
 	if (XST_SUCCESS != xStatus)
 		print(" PS GPIO INIT FAILED \n\r");
 
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber, uPinDirection); // 璁剧疆EMIO涓鸿緭鍑�
-	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber, 1);			// 浣胯兘EMIO杈撳嚭
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, iPinNumber, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, iPinNumber, 1);			// 使能EMIO输出
 
 	usleep(1000);
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber, 1); // EMIO鐨勭3浣嶈緭鍑�1
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber, 1); // EMIO的第3位输�?1
 	usleep(1000);
-	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber, 0); // EMIO鐨勭3浣嶈緭鍑�0
+	XGpioPs_WritePin(&psGpioInstancePtr, iPinNumber, 0); // EMIO的第3位输�?0
 	usleep(1000);
 	return;
 }

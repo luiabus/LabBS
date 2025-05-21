@@ -3,11 +3,11 @@
 #define REG_AMOUNT 2567
 
 //ATT:ATTENUATION，衰减，范围00-ff，单位为0.25dB
-#define AD0_Tx0_ATT 0x78
-#define AD0_Tx1_ATT 0x78
+#define AD0_Tx0_ATT 60
+#define AD0_Tx1_ATT 60
 
-#define AD1_Tx0_ATT 0x78
-#define AD1_Tx1_ATT 0x78
+#define AD1_Tx0_ATT 60
+#define AD1_Tx1_ATT 60
 
 
 #ifndef RegConfig_H_

@@ -12,6 +12,7 @@
 
 // XUartPs uart_dbg;        /* Instance of the UART Device */
 XUartPs uart_gps; /* Instance of the UART Device */
+XUartPs uart1;
 
 void *bs_ptr = (void *)XPAR_XABS_TOP_0_BASEADDR;
 
@@ -23,14 +24,14 @@ int bs_init()
         memset(msg_buffer, 0, sizeof(msg_buffer));
 
         // 配置同步头（其实是同步尾）
-         if (channel == 0)
-         {
-         msg_buffer[8] = 0xf0;
-         msg_buffer[9] = 0x0f;
-         msg_buffer[10] = 0xf0;
-         msg_buffer[11] = 0x5f;
-         msg_buffer[12] = 0x05;
-         }
+        if (channel == 0)
+        {
+            msg_buffer[8] = 0xf0;
+            msg_buffer[9] = 0x0f;
+            msg_buffer[10] = 0xf0;
+            msg_buffer[11] = 0x5f;
+            msg_buffer[12] = 0x05;
+        }
         bs_enable_channel(bs_ptr, channel);
         bs_set_channel_message(bs_ptr, channel, msg_buffer, sizeof(msg_buffer));
         //    	}
@@ -44,6 +45,24 @@ int bs_init()
         //    	}
     }
     bs_enable_tx_timestamp(bs_ptr);
+
+    // 初始化串口
+    int Status;
+    XUartPs_Config *Config;
+
+    Config = XUartPs_LookupConfig(XPAR_XUARTPS_1_DEVICE_ID);
+    if (NULL == Config)
+    {
+        return XST_FAILURE;
+    }
+
+    Status = XUartPs_CfgInitialize(&uart1, Config, Config->BaseAddress);
+    if (Status != XST_SUCCESS)
+    {
+        return XST_FAILURE;
+    }
+
+    XUartPs_SetBaudRate(&uart1, 115200);
 
     return 0;
 }
@@ -100,10 +119,42 @@ int nmea_recv_line(char *buffer, int length)
     return recv_ptr;
 }
 
+int ad9361_recv_line(char *buffer, int length)
+{
+    int recv_ptr = 0;
+    while (recv_ptr < length - 1)
+    {
+        u8 recv_ch;
+        int res = (int)XUartPs_Recv(&uart1, &recv_ch, 1);
+        if (res <= 0)
+            continue;
+
+        if (recv_ch == '\r' || recv_ch == '\n')
+        {
+            if (recv_ptr == 0)
+            {
+                continue;
+            }
+            else
+            {
+                buffer[recv_ptr] = '\0';
+                break;
+            }
+        }
+        else
+        {
+            buffer[recv_ptr++] = recv_ch;
+        }
+    }
+    return recv_ptr;
+}
+
 int nmea_recv()
 {
     char buffer[256] = {};
     nmeaGPRMC gprmc_pack = {};
+
+    char buffer9361[256] = {};
 
     while (1)
     {
@@ -129,6 +180,27 @@ int nmea_recv()
                 bs_update_utc_time(bs_ptr, gprmc_pack.utc.year, gprmc_pack.utc.mon, gprmc_pack.utc.day, gprmc_pack.utc.hour, gprmc_pack.utc.min, gprmc_pack.utc.sec);
             }
         }
+
+        int line_len_9361 = ad9361_recv_line(buffer9361, sizeof(buffer9361));
+        char *pos9361 = strstr(buffer9361, "$");
+        if (pos == buffer)
+        {
+            char channel = 0, attenuation = 0;
+            if (sscanf(buffer, "$SetTxATT,%d,%d", &channel, &attenuation) == 2)
+            {
+                ad9361_setatt(1, channel, attenuation);
+                printf("Tx%d attenuation is set %fdB\n", channel, (float)attenuation * 0.25);
+            }
+            else if(sscanf(buffer, "$GetTxATT,%d", &channel) == 2)
+            {
+                ad9361_setatt(0, channel, attenuation);
+                printf("Tx%d attenuation is %fdB\n", channel, (float)attenuation * 0.25);
+            }
+            else
+            {
+                printf("Invalid command\n");
+            }
+        }
     }
     return 0;
 }
@@ -143,7 +215,7 @@ int main()
 
     bs_init();
     gps_uart_init();
-    bs_update_utc_time(bs_ptr, 0, 0, 0, 0, 0, 0);   // 上电后的默认时间戳
+    bs_update_utc_time(bs_ptr, 0, 0, 0, 0, 0, 0); // 上电后的默认时间戳
     printf("Initialization done...\n");
     nmea_recv();
 
