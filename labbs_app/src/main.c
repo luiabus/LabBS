@@ -24,14 +24,15 @@ int bs_init()
         memset(msg_buffer, 0, sizeof(msg_buffer));
 
         // 配置同步头（其实是同步尾）
-        if (channel == 0)
-        {
-            msg_buffer[8] = 0xf0;
-            msg_buffer[9] = 0x0f;
-            msg_buffer[10] = 0xf0;
-            msg_buffer[11] = 0x5f;
-            msg_buffer[12] = 0x05;
-        }
+        // if (channel == 0)
+        // {
+        //     msg_buffer[8] = 0xf0;
+        //     msg_buffer[9] = 0x0f;
+        //     msg_buffer[10] = 0xf0;
+        //     msg_buffer[11] = 0x5f;
+        //     msg_buffer[12] = 0x05;
+        // }
+
         bs_enable_channel(bs_ptr, channel);
         bs_set_channel_message(bs_ptr, channel, msg_buffer, sizeof(msg_buffer));
         //    	}
@@ -127,7 +128,7 @@ int ad9361_recv_line(char *buffer, int length)
         u8 recv_ch;
         int res = (int)XUartPs_Recv(&uart1, &recv_ch, 1);
         if (res <= 0)
-            continue;
+            break;
 
         if (recv_ch == '\r' || recv_ch == '\n')
         {
@@ -156,6 +157,8 @@ int nmea_recv()
 
     char buffer9361[256] = {};
 
+    int commandWaitCnt = 0; // 接收指令后一段时间不打印UTC
+
     while (1)
     {
         int line_len = nmea_recv_line(buffer, sizeof(buffer));
@@ -163,43 +166,71 @@ int nmea_recv()
         char *pos = strstr(buffer, "$GNRMC");
         if (pos == buffer)
         {
-            puts(buffer);
-
             int res = nmea_parse_GPRMC(buffer, line_len + 1, &gprmc_pack);
-            printf("  res = %d\n", res);
-            printf("  year = %d\n", gprmc_pack.utc.year); /**< Years since 1900 */
-            printf("  mon = %d\n", gprmc_pack.utc.mon);   /**< Months since January - [0,11] */
-            printf("  day = %d\n", gprmc_pack.utc.day);   /**< Day of the month - [1,31] */
-            printf("  hour = %d\n", gprmc_pack.utc.hour); /**< Hours since midnight - [0,23] */
-            printf("  min = %d\n", gprmc_pack.utc.min);   /**< Minutes after the hour - [0,59] */
-            printf("  sec = %d\n", gprmc_pack.utc.sec);   /**< Seconds after the minute - [0,59] */
-            printf("  hsec = %d\n", gprmc_pack.utc.hsec); /**< Hundredth part of second - [0,99] */
-
             if (gprmc_pack.utc.year != 0 && gprmc_pack.utc.mon != 0 && gprmc_pack.utc.day != 0)
             {
-                bs_update_utc_time(bs_ptr, gprmc_pack.utc.year, gprmc_pack.utc.mon, gprmc_pack.utc.day, gprmc_pack.utc.hour, gprmc_pack.utc.min, gprmc_pack.utc.sec);
+                bs_update_utc_time(bs_ptr, 0, 0, 0, 0, 0, 0); // 不加电文
+                // bs_update_utc_time(bs_ptr, gprmc_pack.utc.year, gprmc_pack.utc.mon, gprmc_pack.utc.day, gprmc_pack.utc.hour, gprmc_pack.utc.min, gprmc_pack.utc.sec);
+            }
+
+            if (commandWaitCnt > 0)
+            {
+                commandWaitCnt--;
+            }
+            else
+            {
+                puts(buffer);
+
+                printf("  res = %d\n", res);
+                printf("  year = %d\n", gprmc_pack.utc.year); /**< Years since 1900 */
+                printf("  mon = %d\n", gprmc_pack.utc.mon);   /**< Months since January - [0,11] */
+                printf("  day = %d\n", gprmc_pack.utc.day);   /**< Day of the month - [1,31] */
+                printf("  hour = %d\n", gprmc_pack.utc.hour); /**< Hours since midnight - [0,23] */
+                printf("  min = %d\n", gprmc_pack.utc.min);   /**< Minutes after the hour - [0,59] */
+                printf("  sec = %d\n", gprmc_pack.utc.sec);   /**< Seconds after the minute - [0,59] */
+                printf("  hsec = %d\n", gprmc_pack.utc.hsec); /**< Hundredth part of second - [0,99] */
             }
         }
 
         int line_len_9361 = ad9361_recv_line(buffer9361, sizeof(buffer9361));
         char *pos9361 = strstr(buffer9361, "$");
-        if (pos == buffer)
+        if (pos9361 == buffer9361)
         {
-            char channel = 0, attenuation = 0;
-            if (sscanf(buffer, "$SetTxATT,%d,%d", &channel, &attenuation) == 2)
+            commandWaitCnt = 3; // 接收指令后不打印UTC的时间
+
+            int channel = 0, attenuation = 0;
+            if (sscanf(buffer9361, "$SetTxATT,%d,%d", &channel, &attenuation) == 2)
             {
-                ad9361_setatt(1, channel, attenuation);
-                printf("Tx%d attenuation is set %fdB\n", channel, (float)attenuation * 0.25);
+                printf("Tx%d attenuation will be set to %.2fdB\n", channel, (float)attenuation * 0.25);
+                int result = ad9361_setatt(1, channel, attenuation);
+                if (result == XST_FAILURE)
+                {
+                    printf("Failed.\n");
+                }
+                else
+                {
+                    printf("Tx%d attenuation is set to %.2fdB / 0x%X\n", channel, (float)attenuation * 0.25, attenuation);
+                }
             }
-            else if(sscanf(buffer, "$GetTxATT,%d", &channel) == 2)
+            else if (sscanf(buffer9361, "$GetTxATT,%d", &channel) == 1)
             {
-                ad9361_setatt(0, channel, attenuation);
-                printf("Tx%d attenuation is %fdB\n", channel, (float)attenuation * 0.25);
+                // ad9361_setatt(0, channel, attenuation);
+                int result = ad9361_setatt(0, channel, attenuation);
+                if (result == XST_FAILURE)
+                {
+                    printf("Failed.\n");
+                }
+                else
+                {
+                    printf("Tx%d register of attenuation is shown above\n", channel);
+                    // printf("Tx%c attenuation is set to %fdB\n", channel, (float)attenuation * 0.25);
+                }
             }
             else
             {
                 printf("Invalid command\n");
             }
+            buffer9361[0] = '0';
         }
     }
     return 0;

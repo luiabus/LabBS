@@ -154,6 +154,7 @@ int ad9361_setatt(char command, char channel, char attenuation)
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad0, 1);
 	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad1, uPinDirection); // 设置EMIO为输�?
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad1, 1);
+
 	XGpioPs_WritePin(&psGpioInstancePtr, ad0, 1);
 	XGpioPs_WritePin(&psGpioInstancePtr, ad1, 1);
 
@@ -171,25 +172,39 @@ int ad9361_setatt(char command, char channel, char attenuation)
 		return XST_FAILURE;
 	}
 
+	// 处理寄存器逻辑
 	if (channel == 1 || channel == 3)
 	{
-		SetRefTemp[0] = (RegConfig){(u16)command, 0x073, attenuation};
+		SetRefTemp[0] = (RegConfig){(u16)command, 0x07C, 0x40};
+		SetRefTemp[1] = (RegConfig){(u16)command, 0x073, attenuation};
+		SetRefTemp[2] = (RegConfig){(u16)command, 0x07C, 0x00};
 	}
 	else if (channel == 2 || channel == 4)
 	{
-		SetRefTemp[0] = (RegConfig){(u16)command, 0x073, attenuation};
+		SetRefTemp[0] = (RegConfig){(u16)command, 0x07C, 0x40};
+		SetRefTemp[1] = (RegConfig){(u16)command, 0x075, attenuation};
+		SetRefTemp[2] = (RegConfig){(u16)command, 0x07C, 0x00};
 	}
+	else if (channel == 0)
+	{
+		SetRefTemp[0] = (RegConfig){(u16)command, 0x07C, 0x40};
+		SetRefTemp[1] = (RegConfig){(u16)command, 0x073, attenuation};
+		SetRefTemp[2] = (RegConfig){(u16)command, 0x075, attenuation};
+		SetRefTemp[3] = (RegConfig){(u16)command, 0x07C, 0x00};
+	}
+
 	else
 	{
 		return XST_FAILURE;
 	}
 
+	// 处理片选逻辑
 	if (channel == 1 || channel == 2)
 	{
 		XGpioPs_WritePin(&psGpioInstancePtr, ad0, 0);
 		do
 		{
-			Status = Ad9361RegConfig(&SpiInstance, SetRefTemp, 1, 0);
+			Status = Ad9361RegConfig(&SpiInstance, SetRefTemp, 3, 0);
 		} while (Status != XST_SUCCESS);
 		if (Status != XST_SUCCESS)
 		{
@@ -202,7 +217,30 @@ int ad9361_setatt(char command, char channel, char attenuation)
 		XGpioPs_WritePin(&psGpioInstancePtr, ad1, 0);
 		do
 		{
-			Status = Ad9361RegConfig(&SpiInstance, SetRefTemp, 1, 1);
+			Status = Ad9361RegConfig(&SpiInstance, SetRefTemp, 3, 1);
+		} while (Status != XST_SUCCESS);
+		if (Status != XST_SUCCESS)
+		{
+			return XST_FAILURE;
+		}
+		XGpioPs_WritePin(&psGpioInstancePtr, ad1, 1);
+	}
+	else if (channel == 0)
+	{
+		XGpioPs_WritePin(&psGpioInstancePtr, ad0, 0);
+		do
+		{
+			Status = Ad9361RegConfig(&SpiInstance, SetRefTemp, 4, 0);
+		} while (Status != XST_SUCCESS);
+		if (Status != XST_SUCCESS)
+		{
+			return XST_FAILURE;
+		}
+		XGpioPs_WritePin(&psGpioInstancePtr, ad0, 1);
+		XGpioPs_WritePin(&psGpioInstancePtr, ad1, 0);
+		do
+		{
+			Status = Ad9361RegConfig(&SpiInstance, SetRefTemp, 4, 1);
 		} while (Status != XST_SUCCESS);
 		if (Status != XST_SUCCESS)
 		{
@@ -469,7 +507,8 @@ int SpiPsAd9361Initialize(XScuGic *IntcInstancePtr, XSpiPs *SpiInstancePtr,
 	sleep(0.001);
 	XGpioPs_WritePin(&psGpioInstancePtr, io_rst, 0);
 
-	SpiDisableIntrSystem(IntcInstancePtr, SpiIntrId);
+	// 20250521 为了在线修改发射功率，保持中断可用
+	//  SpiDisableIntrSystem(IntcInstancePtr, SpiIntrId);
 	XGpioPs_WritePin(&psGpioInstancePtr, ad_finish, 1);
 
 	return XST_SUCCESS;
@@ -696,7 +735,7 @@ int Ad9361RegConfig(XSpiPs *SpiInstancePtr, RegConfig *RegPtr, u16 RegNum, int F
 	for (i = 0; i < RegNum; i++)
 	{
 		//		xil_printf("%d %d Address = 0x%x, value = 0x%x \r\n",i,(RegPtr + i)->WRStatus, (RegPtr + i) -> Address, (RegPtr + i)->Vlaue);
-		if ((RegPtr + i)->WRStatus == 0)
+		if ((RegPtr + i)->WRStatus == 0 && (RegPtr + i)->Address != 0x07C)
 		{
 			Ad9361Read(SpiInstancePtr, (RegPtr + i)->Address, 1, ReadBuffer);
 			BufferPtr = &ReadBuffer[READ_DATA_OFFSET];
@@ -723,12 +762,12 @@ int Ad9361RegConfig(XSpiPs *SpiInstancePtr, RegConfig *RegPtr, u16 RegNum, int F
 				Ad9361Read(SpiInstancePtr, (RegPtr + i)->Address, 1, ReadBuffer);
 				BufferPtr = &ReadBuffer[READ_DATA_OFFSET];
 				ReadFlag = ((*BufferPtr) >> BitOffset) & 0x01;
-				//				xil_printf("WRStatus3 Address = 0x%x, value = 0x%x expect = 0x%x %d \r\n", (RegPtr + i) -> Address, ReadFlag, DemandFlag, read_cnt);
-				//				read_cnt++;
-				//				if(read_cnt >= 100000)
-				//				{
-				//					return XST_FAILURE;
-				//				}
+				// xil_printf("WRStatus3 Address = 0x%x, value = 0x%x expect = 0x%x %d \r\n", (RegPtr + i) -> Address, ReadFlag, DemandFlag, read_cnt);
+				// read_cnt++;
+				// if(read_cnt >= 100000)
+				//{
+				//	return XST_FAILURE;
+				// }
 			} while (ReadFlag != DemandFlag);
 			//			read_cnt = 0;
 			//			FMC_rest(FMC);

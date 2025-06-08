@@ -30,14 +30,14 @@ module message_tx # (
     input                   tstamp_patch_en,
 
     input                   dac_valid,
-    output signed [11:0]    dac0_data0_i,
-    output signed [11:0]    dac0_data1_i,
-    output signed [11:0]    dac0_data0_q,
-    output signed [11:0]    dac0_data1_q,
-    output signed [11:0]    dac1_data0_i,
-    output signed [11:0]    dac1_data1_i,
-    output signed [11:0]    dac1_data0_q,
-    output signed [11:0]    dac1_data1_q,
+     (* keep = "true" *) output signed [11:0]    dac0_data0_i,
+     (* keep = "true" *) output signed [11:0]    dac0_data1_i,
+     (* keep = "true" *) output signed [11:0]    dac0_data0_q,
+     (* keep = "true" *) output signed [11:0]    dac0_data1_q,
+     (* keep = "true" *) output signed [11:0]    dac1_data0_i,
+     (* keep = "true" *) output signed [11:0]    dac1_data1_i,
+     (* keep = "true" *) output signed [11:0]    dac1_data0_q,
+     (* keep = "true" *) output signed [11:0]    dac1_data1_q,
     output reg              pps_out
 );
 

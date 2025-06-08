@@ -370,6 +370,8 @@ module xabs_top #(
                 103: dbg_dac_data <= tstamp_patch_en_cdc;
                 104: dbg_dac_data <= pps_ctr;
 
+                105: dbg_dac_data <= pps_in;
+
                 110: dbg_dac_data <= rf_rst;
                 111: dbg_dac_data <= i_tx.sys_pps;
                 112: dbg_dac_data <= i_tx.sys_time_sync_done;

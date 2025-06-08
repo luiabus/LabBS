@@ -2669,7 +2669,7 @@
       },
       "xabs_top_0": {
         "vlnv": "xilinx.com:module_ref:xabs_top:1.0",
-        "ip_revision": "1745386104",
+        "ip_revision": "1",
         "xci_name": "top_xabs_top_0_0",
         "xci_path": "ip\\top_xabs_top_0_0\\top_xabs_top_0_0.xci",
         "inst_hier_path": "xabs_top_0",
@@ -3201,9 +3201,9 @@
       "proc_sys_reset_0_peripheral_aresetn": {
         "ports": [
           "proc_sys_reset_0/peripheral_aresetn",
-          "xabs_top_0/S_AXI_ARESETN",
           "axi_interconnect_0/S00_ARESETN",
-          "axi_interconnect_0/M00_ARESETN"
+          "axi_interconnect_0/M00_ARESETN",
+          "xabs_top_0/S_AXI_ARESETN"
         ]
       },
       "processing_system7_0_FCLK_CLK0": {
@@ -3211,10 +3211,10 @@
           "processing_system7_0/FCLK_CLK0",
           "processing_system7_0/M_AXI_GP0_ACLK",
           "proc_sys_reset_0/slowest_sync_clk",
-          "xabs_top_0/S_AXI_ACLK",
           "axi_interconnect_0/ACLK",
           "axi_interconnect_0/S00_ACLK",
-          "axi_interconnect_0/M00_ACLK"
+          "axi_interconnect_0/M00_ACLK",
+          "xabs_top_0/S_AXI_ACLK"
         ]
       },
       "processing_system7_0_FCLK_CLK1": {
