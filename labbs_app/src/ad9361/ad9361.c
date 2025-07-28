@@ -135,10 +135,11 @@ int ad9361_init(void)
 
 int ad9361_setatt(char command, char channel, char attenuation)
 {
-	static XGpioPs psGpioInstancePtr; // 这是�?个指针实例，指向添加�? GPIO 端口
-	XGpioPs_Config *GpioConfigPtr;	  // 此结构体存放的是 GPIO 的设备地�?和基地址
-	int ad0 = 57;					  // EMIO的第3�?
-	int ad1 = 58;					  // EMIO的第4�?
+	//启用SPI传输
+	static XGpioPs psGpioInstancePtr; // 这是1个指针实例，指向添加�? GPIO 端口
+	XGpioPs_Config *GpioConfigPtr;	  // 此结构体存放的是 GPIO 的设备地址和基地址
+	int ad0 = 57;					  // EMIO的第3位
+	int ad1 = 58;					  // EMIO的第4位
 	u32 uPinDirection = 1;			  // 1表示输出
 	int xStatus;
 
@@ -150,9 +151,9 @@ int ad9361_setatt(char command, char channel, char attenuation)
 	if (XST_SUCCESS != xStatus)
 		printf(" PS GPIO INIT FAILED \n\r");
 
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad0, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad0, uPinDirection); // 设置EMIO为输出
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad0, 1);
-	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad1, uPinDirection); // 设置EMIO为输�?
+	XGpioPs_SetDirectionPin(&psGpioInstancePtr, ad1, uPinDirection); // 设置EMIO为输出
 	XGpioPs_SetOutputEnablePin(&psGpioInstancePtr, ad1, 1);
 
 	XGpioPs_WritePin(&psGpioInstancePtr, ad0, 1);
